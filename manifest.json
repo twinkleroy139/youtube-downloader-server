@@ -1,0 +1,11 @@
+{
+  "manifest_version": 3,
+  "name": "YouTube Downloader Server",
+  "version": "1.0",
+  "permissions": ["scripting", "activeTab"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": "icons/ytLogo1.png"
+  },
+  "host_permissions": ["<all_urls>"]
+}

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>YouTube Downloader</title>
+  <style>
+    body { font-family: sans-serif; padding: 10px; width: 350px; }
+    img { max-width: 100%; }
+    button { margin-top: 5px; }
+    .video-block { border-bottom: 1px solid #ccc; margin-bottom: 10px; padding-bottom: 10px; }
+    .loader { margin: 10px 0; color: green; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <form id="searchForm">
+    <input type="text" id="videoInput" placeholder="Enter YouTube URL or keywords" style="width: 100%;" />
+    <button type="submit">Search</button>
+  </form>
+  <div id="results"></div>
+  <div id="videoInfo"></div>
+  <script src="popup.js"></script>
+</body>
+</html>
+
