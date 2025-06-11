@@ -1,97 +1,167 @@
-// Some video  no show download quality option
-document.querySelector('#searchForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const input = document.querySelector('#videoInput').value.trim();
-  const isUrl = input.startsWith('http');
+// Run for Global
+document.addEventListener('DOMContentLoaded', () => {
+  const searchForm = document.getElementById('search-form');
+  const queryInput = document.getElementById('query');
+  const resultsContainer = document.getElementById('results');
 
-  document.querySelector('#results').innerHTML = '';
-  document.querySelector('#videoInfo').innerHTML = '<p class="loader">Loading...</p>';
+  searchForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const keyword = queryInput.value.trim();
+    if (!keyword) return;
 
-  if (isUrl) {
-    await fetchVideoInfo(input, true);
-  } else {
-    const res = await fetch('http://localhost:3000/search', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ keyword: input })
-    });
+    resultsContainer.innerHTML = 'Loading...';
 
-    const data = await res.json();
-    if (data.error) return alert(data.error);
+    try {
+      const response = await fetch('https://youtube-downloader-server-m847.onrender.com/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ keyword })
+      });
 
-    document.querySelector('#videoInfo').innerHTML = '';
-    const results = document.querySelector('#results');
+      const data = await response.json();
 
-    for (const video of data.videos) {
-      const div = document.createElement('div');
-      div.className = 'video-block';
-      div.innerHTML = `
-        <img src="${video.thumbnail}" />
-        <p><strong>${video.title}</strong></p>
-        <p class="loader">Loading formats...</p>
-      `;
-      results.appendChild(div);
-
-      // Fetch formats automatically
-      try {
-        const res = await fetch('http://localhost:3000/get-info', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ videoUrl: video.url })
+      if (data.videos && data.videos.length) {
+        resultsContainer.innerHTML = '';
+        data.videos.forEach(video => {
+          const item = document.createElement('div');
+          item.className = 'video-item';
+          item.innerHTML = `
+            <img src="${video.thumbnail}" width="120">
+            <p>${video.title}</p>
+            <a href="${video.url}" target="_blank">Watch</a>
+          `;
+          resultsContainer.appendChild(item);
         });
-        const formatData = await res.json();
-
-        const formatHTML = formatData.formats
-          .filter(f => (f.height || 0) >= 360)
-          .map(f => `
-            <a href="${f.url}" download target="_blank">
-              ${f.format_id} (${f.ext}) - ${f.quality_label || f.height + 'p'}
-            </a><br/>
-          `).join('');
-
-        div.querySelector('.loader').outerHTML = `
-          <div>
-            <h4>Available Formats:</h4>
-            ${formatHTML}
-          </div>
-        `;
-      } catch (err) {
-        div.querySelector('.loader').textContent = 'Failed to load formats.';
+      } else {
+        resultsContainer.innerHTML = 'No videos found.';
       }
+    } catch (err) {
+      resultsContainer.innerHTML = 'Error fetching videos.';
+      console.error(err);
     }
-  }
+  });
 });
 
-async function fetchVideoInfo(videoUrl, showImmediately = false) {
-  const res = await fetch('http://localhost:3000/get-info', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ videoUrl })
-  });
 
-  const data = await res.json();
-  if (data.error) return alert(data.error);
 
-  if (showImmediately) {
-    showVideoInfo(data.title, data.thumbnail, data.formats);
-  }
-}
 
-function showVideoInfo(title, thumbnail, formats) {
-  const container = document.querySelector('#videoInfo');
-  container.innerHTML = `
-    <h3>${title}</h3>
-    <img src="${thumbnail}" />
-    <h4>Available Formats:</h4>
-    ${formats
-      .filter(f => (f.height || 0) >= 360)
-      .map(f => `
-        <a href="${f.url}" download target="_blank">
-          ${f.format_id} (${f.ext}) - ${f.quality_label || f.height + 'p'}
-        </a><br/>
-      `).join('')}
-  `;
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// run local server good !
+// // Some video  no show download quality option
+// document.querySelector('#searchForm').addEventListener('submit', async (e) => {
+//   e.preventDefault();
+//   const input = document.querySelector('#videoInput').value.trim();
+//   const isUrl = input.startsWith('http');
+
+//   document.querySelector('#results').innerHTML = '';
+//   document.querySelector('#videoInfo').innerHTML = '<p class="loader">Loading...</p>';
+
+//   if (isUrl) {
+//     await fetchVideoInfo(input, true);
+//   } else {
+//     const res = await fetch('http://localhost:3000/search', {
+//       method: 'POST',
+//       headers: { 'Content-Type': 'application/json' },
+//       body: JSON.stringify({ keyword: input })
+//     });
+
+//     const data = await res.json();
+//     if (data.error) return alert(data.error);
+
+//     document.querySelector('#videoInfo').innerHTML = '';
+//     const results = document.querySelector('#results');
+
+//     for (const video of data.videos) {
+//       const div = document.createElement('div');
+//       div.className = 'video-block';
+//       div.innerHTML = `
+//         <img src="${video.thumbnail}" />
+//         <p><strong>${video.title}</strong></p>
+//         <p class="loader">Loading formats...</p>
+//       `;
+//       results.appendChild(div);
+
+//       // Fetch formats automatically
+//       try {
+//         const res = await fetch('http://localhost:3000/get-info', {
+//           method: 'POST',
+//           headers: { 'Content-Type': 'application/json' },
+//           body: JSON.stringify({ videoUrl: video.url })
+//         });
+//         const formatData = await res.json();
+
+//         const formatHTML = formatData.formats
+//           .filter(f => (f.height || 0) >= 360)
+//           .map(f => `
+//             <a href="${f.url}" download target="_blank">
+//               ${f.format_id} (${f.ext}) - ${f.quality_label || f.height + 'p'}
+//             </a><br/>
+//           `).join('');
+
+//         div.querySelector('.loader').outerHTML = `
+//           <div>
+//             <h4>Available Formats:</h4>
+//             ${formatHTML}
+//           </div>
+//         `;
+//       } catch (err) {
+//         div.querySelector('.loader').textContent = 'Failed to load formats.';
+//       }
+//     }
+//   }
+// });
+
+// async function fetchVideoInfo(videoUrl, showImmediately = false) {
+//   const res = await fetch('http://localhost:3000/get-info', {
+//     method: 'POST',
+//     headers: { 'Content-Type': 'application/json' },
+//     body: JSON.stringify({ videoUrl })
+//   });
+
+//   const data = await res.json();
+//   if (data.error) return alert(data.error);
+
+//   if (showImmediately) {
+//     showVideoInfo(data.title, data.thumbnail, data.formats);
+//   }
+// }
+
+// function showVideoInfo(title, thumbnail, formats) {
+//   const container = document.querySelector('#videoInfo');
+//   container.innerHTML = `
+//     <h3>${title}</h3>
+//     <img src="${thumbnail}" />
+//     <h4>Available Formats:</h4>
+//     ${formats
+//       .filter(f => (f.height || 0) >= 360)
+//       .map(f => `
+//         <a href="${f.url}" download target="_blank">
+//           ${f.format_id} (${f.ext}) - ${f.quality_label || f.height + 'p'}
+//         </a><br/>
+//       `).join('')}
+//   `;
+// }
 
 
 
