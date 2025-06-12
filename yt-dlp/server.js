@@ -1,6 +1,3 @@
-// for global only key item search working
-// ✅ Updated server.js (clean and final for deployment)
-// Replace your current server.js file with the following:
 const express = require('express');
 const cors = require('cors');
 const { exec } = require('child_process');
@@ -10,82 +7,56 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Fetch download formats by video URL
+// ✅ Fetch download formats by video URL
 app.post('/get-info', (req, res) => {
   const { videoUrl } = req.body;
   if (!videoUrl) return res.status(400).json({ error: 'No video URL provided' });
 
-  const cmd = `yt-dlp -J "${videoUrl}"`;
-  exec(cmd, (error, stdout) => {
+  const cmd = `yt-dlp --no-playlist --no-warnings -f "bv*+ba/b" -J "${videoUrl}"`;
+
+  exec(cmd, (error, stdout, stderr) => {
     if (error) {
+      console.error("yt-dlp error:", stderr || error.message);
       return res.status(500).json({ error: 'Failed to fetch video info' });
     }
+
     try {
       const json = JSON.parse(stdout);
+      console.log("Parsed yt-dlp JSON:", json); // for Render log debug
+
+      if (!json.formats || !Array.isArray(json.formats)) {
+        return res.status(500).json({ error: 'No formats found in video' });
+      }
+
       const formats = json.formats
         .filter(f => f.vcodec !== 'none' && f.acodec !== 'none' && !f.format_note?.includes('DASH'))
         .map(f => ({
           url: f.url,
           ext: f.ext,
           format_id: f.format_id,
-          quality_label: f.quality,
+          quality_label: f.quality || `${f.height}p`,
           height: f.height
         }));
+
+      if (!formats.length) {
+        return res.status(500).json({ error: 'No downloadable formats found' });
+      }
+
       res.json({
         title: json.title,
         thumbnail: json.thumbnail,
         formats
       });
     } catch (err) {
+      console.error("JSON parse error:", err.message);
       res.status(500).json({ error: 'Invalid video info format' });
     }
   });
 });
 
-// Keyword-based video search (for extension UI)
-// app.post('/search', async (req, res) => {
-//   const { keyword } = req.body;
-//   if (!keyword) return res.status(400).json({ error: 'No keyword provided' });
-
-//   try {
-//     const result = await ytSearch(keyword);
-//     const videos = result.videos.slice(0, 5).map(v => ({
-//       title: v.title,
-//       thumbnail: v.thumbnail,
-//       url: v.url
-//     }));
-//     res.json({ videos });
-//   } catch (err) {
-//     res.status(500).json({ error: 'Search failed' });
-//   }
-// });
-
-
-// app.post('/search', async (req, res) => {
-//   const { keyword } = req.body;
-//   if (!keyword) {
-//     console.error("No keyword provided in request body.");
-//     return res.status(400).json({ error: 'No keyword provided' });
-//   }
-
-//   try {
-//     const result = await ytSearch(keyword);
-//     const videos = result.videos.slice(0, 5).map(v => ({
-//       title: v.title,
-//       thumbnail: v.thumbnail,
-//       url: v.url
-//     }));
-//     res.json({ videos });
-//   } catch (err) {
-//     console.error("Search error:", err);  // 🔥 This line will log the actual error
-//     res.status(500).json({ error: 'Search failed' });
-//   }
-// });
-
+// ✅ Keyword-based video search
 app.post('/search', async (req, res) => {
-  const body = req.body || {};
-  const { keyword } = body;
-
+  const { keyword } = req.body || {};
   if (!keyword) {
     console.error("No keyword provided in request body.");
     return res.status(400).json({ error: 'No keyword provided' });
@@ -105,12 +76,144 @@ app.post('/search', async (req, res) => {
   }
 });
 
-
-
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// // for global only key item search working
+// // ✅ Updated server.js (clean and final for deployment)
+// // Replace your current server.js file with the following:
+// const express = require('express');
+// const cors = require('cors');
+// const { exec } = require('child_process');
+// const ytSearch = require('yt-search');
+
+// const app = express();
+// app.use(cors());
+// app.use(express.json());
+
+// // Fetch download formats by video URL
+// app.post('/get-info', (req, res) => {
+//   const { videoUrl } = req.body;
+//   if (!videoUrl) return res.status(400).json({ error: 'No video URL provided' });
+
+//   const cmd = `yt-dlp -J "${videoUrl}"`;
+//   exec(cmd, (error, stdout) => {
+//     if (error) {
+//       return res.status(500).json({ error: 'Failed to fetch video info' });
+//     }
+//     try {
+//       const json = JSON.parse(stdout);
+//       const formats = json.formats
+//         .filter(f => f.vcodec !== 'none' && f.acodec !== 'none' && !f.format_note?.includes('DASH'))
+//         .map(f => ({
+//           url: f.url,
+//           ext: f.ext,
+//           format_id: f.format_id,
+//           quality_label: f.quality,
+//           height: f.height
+//         }));
+//       res.json({
+//         title: json.title,
+//         thumbnail: json.thumbnail,
+//         formats
+//       });
+//     } catch (err) {
+//       res.status(500).json({ error: 'Invalid video info format' });
+//     }
+//   });
+// });
+
+// // Keyword-based video search (for extension UI)
+// // app.post('/search', async (req, res) => {
+// //   const { keyword } = req.body;
+// //   if (!keyword) return res.status(400).json({ error: 'No keyword provided' });
+
+// //   try {
+// //     const result = await ytSearch(keyword);
+// //     const videos = result.videos.slice(0, 5).map(v => ({
+// //       title: v.title,
+// //       thumbnail: v.thumbnail,
+// //       url: v.url
+// //     }));
+// //     res.json({ videos });
+// //   } catch (err) {
+// //     res.status(500).json({ error: 'Search failed' });
+// //   }
+// // });
+
+
+// // app.post('/search', async (req, res) => {
+// //   const { keyword } = req.body;
+// //   if (!keyword) {
+// //     console.error("No keyword provided in request body.");
+// //     return res.status(400).json({ error: 'No keyword provided' });
+// //   }
+
+// //   try {
+// //     const result = await ytSearch(keyword);
+// //     const videos = result.videos.slice(0, 5).map(v => ({
+// //       title: v.title,
+// //       thumbnail: v.thumbnail,
+// //       url: v.url
+// //     }));
+// //     res.json({ videos });
+// //   } catch (err) {
+// //     console.error("Search error:", err);  // 🔥 This line will log the actual error
+// //     res.status(500).json({ error: 'Search failed' });
+// //   }
+// // });
+
+// app.post('/search', async (req, res) => {
+//   const body = req.body || {};
+//   const { keyword } = body;
+
+//   if (!keyword) {
+//     console.error("No keyword provided in request body.");
+//     return res.status(400).json({ error: 'No keyword provided' });
+//   }
+
+//   try {
+//     const result = await ytSearch(keyword);
+//     const videos = result.videos.slice(0, 5).map(v => ({
+//       title: v.title,
+//       thumbnail: v.thumbnail,
+//       url: v.url
+//     }));
+//     res.json({ videos });
+//   } catch (err) {
+//     console.error("Search error:", err);
+//     res.status(500).json({ error: 'Search failed' });
+//   }
+// });
+
+
+
+// const PORT = process.env.PORT || 3000;
+// app.listen(PORT, () => {
+//   console.log(`Server running on port ${PORT}`);
+// });
 
 
 
