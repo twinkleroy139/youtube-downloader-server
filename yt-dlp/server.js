@@ -61,8 +61,31 @@ app.post('/get-info', (req, res) => {
 // });
 
 
+// app.post('/search', async (req, res) => {
+//   const { keyword } = req.body;
+//   if (!keyword) {
+//     console.error("No keyword provided in request body.");
+//     return res.status(400).json({ error: 'No keyword provided' });
+//   }
+
+//   try {
+//     const result = await ytSearch(keyword);
+//     const videos = result.videos.slice(0, 5).map(v => ({
+//       title: v.title,
+//       thumbnail: v.thumbnail,
+//       url: v.url
+//     }));
+//     res.json({ videos });
+//   } catch (err) {
+//     console.error("Search error:", err);  // 🔥 This line will log the actual error
+//     res.status(500).json({ error: 'Search failed' });
+//   }
+// });
+
 app.post('/search', async (req, res) => {
-  const { keyword } = req.body;
+  const body = req.body || {};
+  const { keyword } = body;
+
   if (!keyword) {
     console.error("No keyword provided in request body.");
     return res.status(400).json({ error: 'No keyword provided' });
@@ -77,10 +100,11 @@ app.post('/search', async (req, res) => {
     }));
     res.json({ videos });
   } catch (err) {
-    console.error("Search error:", err);  // 🔥 This line will log the actual error
+    console.error("Search error:", err);
     res.status(500).json({ error: 'Search failed' });
   }
 });
+
 
 
 const PORT = process.env.PORT || 3000;
