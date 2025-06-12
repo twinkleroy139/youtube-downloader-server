@@ -1,4 +1,4 @@
-// for global
+// for global only key item search working
 // ✅ Updated server.js (clean and final for deployment)
 // Replace your current server.js file with the following:
 const express = require('express');
