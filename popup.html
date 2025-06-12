@@ -3,6 +3,73 @@
 <head>
   <title>YouTube Downloader</title>
   <style>
+    body {
+      font-family: sans-serif;
+      width: 320px;
+      padding: 10px;
+      background-color: #f9f9f9;
+    }
+    form {
+      display: flex;
+      gap: 5px;
+    }
+    input[type="text"] {
+      flex: 1;
+      padding: 6px;
+    }
+    button {
+      padding: 6px 10px;
+      cursor: pointer;
+    }
+    #results {
+      margin-top: 15px;
+    }
+    .video-item {
+      border-bottom: 1px solid #ccc;
+      padding: 10px 0;
+    }
+    .video-item img {
+      display: block;
+      margin-bottom: 5px;
+    }
+    .video-item p {
+      margin: 5px 0;
+      font-weight: bold;
+    }
+    a {
+      text-decoration: none;
+      color: blue;
+    }
+  </style>
+</head>
+<body>
+  <form id="search-form">
+    <input type="text" id="query" placeholder="Search or paste YouTube URL" required />
+    <button type="submit">Go</button>
+  </form>
+  <div id="results"></div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- <!DOCTYPE html>
+<html>
+<head>
+  <title>YouTube Downloader</title>
+  <style>
     body { font-family: sans-serif; width: 300px; padding: 10px; }
     #results .video-item { margin-bottom: 10px; border-bottom: 1px solid #ccc; padding-bottom: 10px; }
     a { text-decoration: none; color: blue; }
@@ -17,7 +84,7 @@
 
   <script src="popup.js"></script>
 </body>
-</html>
+</html> -->
 
 
 

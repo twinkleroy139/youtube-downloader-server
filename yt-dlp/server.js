@@ -7,26 +7,33 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ✅ Fetch download formats by video URL
+/**
+ * Route: /get-info
+ * Description: Accepts YouTube video URL and returns available muxed formats (video + audio)
+ */
 app.post('/get-info', (req, res) => {
   const { videoUrl } = req.body;
-  if (!videoUrl) return res.status(400).json({ error: 'No video URL provided' });
+  console.log('[GET-INFO] videoUrl:', videoUrl);
+
+  if (!videoUrl) {
+    return res.status(400).json({ error: 'No video URL provided' });
+  }
 
   const cmd = `yt-dlp --no-playlist --no-warnings -f "bv*+ba/b" -J "${videoUrl}"`;
+  console.log('[GET-INFO] Running command:', cmd);
 
   exec(cmd, (error, stdout, stderr) => {
     if (error) {
-      console.error("yt-dlp error:", stderr || error.message);
-      return res.status(500).json({ error: 'Failed to fetch video info' });
+      console.error('[GET-INFO] yt-dlp error:', stderr || error.message);
+      return res.status(500).json({ error: 'Failed to fetch video info', detail: stderr });
     }
 
     try {
       const json = JSON.parse(stdout);
-      console.log("Parsed yt-dlp JSON:", json); // for Render log debug
-
-      if (!json.formats || !Array.isArray(json.formats)) {
-        return res.status(500).json({ error: 'No formats found in video' });
-      }
+      console.log('[GET-INFO] yt-dlp JSON parsed:', {
+        title: json.title,
+        formatsCount: json.formats?.length || 0,
+      });
 
       const formats = json.formats
         .filter(f => f.vcodec !== 'none' && f.acodec !== 'none' && !f.format_note?.includes('DASH'))
@@ -39,6 +46,7 @@ app.post('/get-info', (req, res) => {
         }));
 
       if (!formats.length) {
+        console.warn('[GET-INFO] No valid muxed formats found');
         return res.status(500).json({ error: 'No downloadable formats found' });
       }
 
@@ -47,18 +55,23 @@ app.post('/get-info', (req, res) => {
         thumbnail: json.thumbnail,
         formats
       });
+
     } catch (err) {
-      console.error("JSON parse error:", err.message);
-      res.status(500).json({ error: 'Invalid video info format' });
+      console.error('[GET-INFO] JSON parse error:', err.message);
+      return res.status(500).json({ error: 'Invalid video info format', detail: err.message });
     }
   });
 });
 
-// ✅ Keyword-based video search
+/**
+ * Route: /search
+ * Description: Search YouTube videos by keyword
+ */
 app.post('/search', async (req, res) => {
   const { keyword } = req.body || {};
+
   if (!keyword) {
-    console.error("No keyword provided in request body.");
+    console.error("[SEARCH] No keyword provided");
     return res.status(400).json({ error: 'No keyword provided' });
   }
 
@@ -69,17 +82,20 @@ app.post('/search', async (req, res) => {
       thumbnail: v.thumbnail,
       url: v.url
     }));
+    console.log(`[SEARCH] Returning ${videos.length} results for: "${keyword}"`);
     res.json({ videos });
   } catch (err) {
-    console.error("Search error:", err);
-    res.status(500).json({ error: 'Search failed' });
+    console.error("[SEARCH] Search error:", err.message);
+    res.status(500).json({ error: 'Search failed', detail: err.message });
   }
 });
 
+// Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
 });
+
 
 
 

@@ -10,13 +10,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     resultsContainer.innerHTML = 'Loading...';
 
-    // Check if input is a YouTube URL
     const isUrl = input.startsWith('http');
-
     if (isUrl) {
-      fetchVideoFormats(input);
+      await fetchVideoFormats(input);
     } else {
-      fetchSearchResults(input);
+      await fetchSearchResults(input);
     }
   });
 
@@ -29,7 +27,8 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       const data = await response.json();
-      if (data.videos && data.videos.length) {
+
+      if (data.videos?.length) {
         resultsContainer.innerHTML = '';
         data.videos.forEach(video => {
           const item = document.createElement('div');
@@ -48,8 +47,8 @@ document.addEventListener('DOMContentLoaded', () => {
         resultsContainer.innerHTML = 'No videos found.';
       }
     } catch (err) {
-      console.error(err);
-      resultsContainer.innerHTML = 'Error fetching videos.';
+      console.error('[SEARCH ERROR]', err);
+      resultsContainer.innerHTML = 'Error fetching search results.';
     }
   }
 
@@ -63,31 +62,136 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const data = await response.json();
 
-      if (data.formats && data.formats.length) {
+      if (data.formats?.length) {
         resultsContainer.innerHTML = `
           <h3>${data.title}</h3>
           <img src="${data.thumbnail}" width="120">
-          <p>Choose Quality:</p>
+          <p>Choose a quality to download:</p>
         `;
 
         data.formats.forEach(format => {
           const btn = document.createElement('a');
           btn.href = format.url;
-          btn.textContent = `${format.quality_label || format.height + 'p'} (${format.ext})`;
+          btn.textContent = `${format.quality_label || (format.height + 'p')} (${format.ext})`;
           btn.style.display = 'block';
           btn.style.marginBottom = '5px';
           btn.target = '_blank';
+          btn.rel = 'noopener noreferrer';
           resultsContainer.appendChild(btn);
         });
       } else {
         resultsContainer.innerHTML = 'No downloadable formats found.';
       }
     } catch (err) {
-      console.error(err);
-      resultsContainer.innerHTML = 'Error fetching formats.';
+      console.error('[GET-INFO ERROR]', err);
+      resultsContainer.innerHTML = 'Error fetching video formats.';
     }
   }
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// document.addEventListener('DOMContentLoaded', () => {
+//   const searchForm = document.getElementById('search-form');
+//   const queryInput = document.getElementById('query');
+//   const resultsContainer = document.getElementById('results');
+
+//   searchForm.addEventListener('submit', async (e) => {
+//     e.preventDefault();
+//     const input = queryInput.value.trim();
+//     if (!input) return;
+
+//     resultsContainer.innerHTML = 'Loading...';
+
+//     // Check if input is a YouTube URL
+//     const isUrl = input.startsWith('http');
+
+//     if (isUrl) {
+//       fetchVideoFormats(input);
+//     } else {
+//       fetchSearchResults(input);
+//     }
+//   });
+
+//   async function fetchSearchResults(keyword) {
+//     try {
+//       const response = await fetch('https://youtube-downloader-server-m847.onrender.com/search', {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify({ keyword })
+//       });
+
+//       const data = await response.json();
+//       if (data.videos && data.videos.length) {
+//         resultsContainer.innerHTML = '';
+//         data.videos.forEach(video => {
+//           const item = document.createElement('div');
+//           item.className = 'video-item';
+//           item.innerHTML = `
+//             <img src="${video.thumbnail}" width="120">
+//             <p>${video.title}</p>
+//             <button data-url="${video.url}">Download</button>
+//           `;
+//           item.querySelector('button').addEventListener('click', () => {
+//             fetchVideoFormats(video.url);
+//           });
+//           resultsContainer.appendChild(item);
+//         });
+//       } else {
+//         resultsContainer.innerHTML = 'No videos found.';
+//       }
+//     } catch (err) {
+//       console.error(err);
+//       resultsContainer.innerHTML = 'Error fetching videos.';
+//     }
+//   }
+
+//   async function fetchVideoFormats(videoUrl) {
+//     try {
+//       const response = await fetch('https://youtube-downloader-server-m847.onrender.com/get-info', {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify({ videoUrl })
+//       });
+
+//       const data = await response.json();
+
+//       if (data.formats && data.formats.length) {
+//         resultsContainer.innerHTML = `
+//           <h3>${data.title}</h3>
+//           <img src="${data.thumbnail}" width="120">
+//           <p>Choose Quality:</p>
+//         `;
+
+//         data.formats.forEach(format => {
+//           const btn = document.createElement('a');
+//           btn.href = format.url;
+//           btn.textContent = `${format.quality_label || format.height + 'p'} (${format.ext})`;
+//           btn.style.display = 'block';
+//           btn.style.marginBottom = '5px';
+//           btn.target = '_blank';
+//           resultsContainer.appendChild(btn);
+//         });
+//       } else {
+//         resultsContainer.innerHTML = 'No downloadable formats found.';
+//       }
+//     } catch (err) {
+//       console.error(err);
+//       resultsContainer.innerHTML = 'Error fetching formats.';
+//     }
+//   }
+// });
 
 
 
