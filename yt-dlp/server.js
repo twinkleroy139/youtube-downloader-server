@@ -43,9 +43,30 @@ app.post('/get-info', (req, res) => {
 });
 
 // Keyword-based video search (for extension UI)
+// app.post('/search', async (req, res) => {
+//   const { keyword } = req.body;
+//   if (!keyword) return res.status(400).json({ error: 'No keyword provided' });
+
+//   try {
+//     const result = await ytSearch(keyword);
+//     const videos = result.videos.slice(0, 5).map(v => ({
+//       title: v.title,
+//       thumbnail: v.thumbnail,
+//       url: v.url
+//     }));
+//     res.json({ videos });
+//   } catch (err) {
+//     res.status(500).json({ error: 'Search failed' });
+//   }
+// });
+
+
 app.post('/search', async (req, res) => {
   const { keyword } = req.body;
-  if (!keyword) return res.status(400).json({ error: 'No keyword provided' });
+  if (!keyword) {
+    console.error("No keyword provided in request body.");
+    return res.status(400).json({ error: 'No keyword provided' });
+  }
 
   try {
     const result = await ytSearch(keyword);
@@ -56,9 +77,11 @@ app.post('/search', async (req, res) => {
     }));
     res.json({ videos });
   } catch (err) {
+    console.error("Search error:", err);  // 🔥 This line will log the actual error
     res.status(500).json({ error: 'Search failed' });
   }
 });
+
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
