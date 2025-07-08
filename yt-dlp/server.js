@@ -7,10 +7,13 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Log yt-dlp version at startup with detailed error handling
+// Log yt-dlp version and environment details at startup
 try {
   const version = execSync('./yt-dlp-bin/yt-dlp --version', { stdio: 'pipe' }).toString().trim();
   console.log(`[YT-DLP] Version: ${version}`);
+  // Log Python version to confirm it's available
+  const pythonVersion = execSync('python3 --version', { stdio: 'pipe' }).toString().trim();
+  console.log(`[YT-DLP] Python Version: ${pythonVersion}`);
 } catch (err) {
   console.error(`[YT-DLP] Version check failed: ${err.message}`);
   if (err.stderr) console.error(`[YT-DLP] stderr: ${err.stderr.toString()}`);
@@ -36,7 +39,7 @@ app.post('/get-info', (req, res) => {
   exec(cmd, (error, stdout, stderr) => {
     if (error) {
       console.error('[GET-INFO] yt-dlp error:', stderr || error.message);
-      return res.status(500).json({ error: 'Failed to fetch video info', detail: stderr });
+      return res.status(500).json({ error: 'Failed to fetch video info', detail: stderr || error.message });
     }
 
     try {
