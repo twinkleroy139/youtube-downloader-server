@@ -19,7 +19,10 @@ app.post('/get-info', (req, res) => {
     return res.status(400).json({ error: 'No video URL provided' });
   }
 
-  const cmd = `yt-dlp --no-playlist --no-warnings -f "bv*+ba/b" -J "${videoUrl}"`;
+
+  const cmd = `./yt-dlp-bin/yt-dlp --no-playlist --no-warnings -f "bv*+ba/b" -J "${videoUrl}"`;
+
+  // const cmd = `yt-dlp --no-playlist --no-warnings -f "bv*+ba/b" -J "${videoUrl}"`;   /// not here inludeed path so no ruuning
   console.log('[GET-INFO] Running command:', cmd);
 
   exec(cmd, (error, stdout, stderr) => {
