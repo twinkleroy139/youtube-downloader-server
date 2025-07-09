@@ -32,8 +32,8 @@ const express = require('express');
          return res.status(400).json({ error: 'No video URL provided' });
        }
 
-       // Use yt-dlp from PATH, with user-agent and geo-bypass
-       const cmd = `yt-dlp --no-playlist --no-warnings --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36" --geo-bypass -f "bv*+ba/b" -J "${videoUrl}"`;
+       // Use yt-dlp from PATH with cookies
+       const cmd = `yt-dlp --no-playlist --no-warnings --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36" --geo-bypass --cookies /app/cookies.txt -f "bv*+ba/b" -J "${videoUrl}"`;
        console.log('[GET-INFO] Running command:', cmd);
 
        exec(cmd, (error, stdout, stderr) => {
@@ -109,6 +109,140 @@ const express = require('express');
      app.listen(PORT, () => {
        console.log(`🚀 Server running on port ${PORT}`);
      });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// const express = require('express');
+//      const cors = require('cors');
+//      const { exec, execSync } = require('child_process');
+//      const ytSearch = require('yt-search');
+
+//      const app = express();
+//      app.use(cors());
+//      app.use(express.json());
+
+//      // Log yt-dlp version and environment details at startup
+//      try {
+//        const version = execSync('yt-dlp --version', { stdio: 'pipe' }).toString().trim();
+//        console.log(`[YT-DLP] Version: ${version}`);
+//        // Log Python version to confirm it's available
+//        const pythonVersion = execSync('python3 --version', { stdio: 'pipe' }).toString().trim();
+//        console.log(`[YT-DLP] Python Version: ${pythonVersion}`);
+//      } catch (err) {
+//        console.error(`[YT-DLP] Version check failed: ${err.message}`);
+//        if (err.stderr) console.error(`[YT-DLP] stderr: ${err.stderr.toString()}`);
+//        if (err.stdout) console.error(`[YT-DLP] stdout: ${err.stdout.toString()}`);
+//      }
+
+//      /**
+//       * Route: /get-info
+//       * Description: Accepts YouTube video URL and returns available muxed formats (video + audio)
+//       */
+//      app.post('/get-info', (req, res) => {
+//        const { videoUrl } = req.body;
+//        console.log('[GET-INFO] videoUrl:', videoUrl);
+
+//        if (!videoUrl) {
+//          return res.status(400).json({ error: 'No video URL provided' });
+//        }
+
+//        // Use yt-dlp from PATH, with user-agent and geo-bypass
+//        const cmd = `yt-dlp --no-playlist --no-warnings --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36" --geo-bypass -f "bv*+ba/b" -J "${videoUrl}"`;
+//        console.log('[GET-INFO] Running command:', cmd);
+
+//        exec(cmd, (error, stdout, stderr) => {
+//          if (error) {
+//            console.error('[GET-INFO] yt-dlp error:', stderr || error.message);
+//            return res.status(500).json({ error: 'Failed to fetch video info', detail: stderr || error.message });
+//          }
+
+//          try {
+//            const json = JSON.parse(stdout);
+//            console.log('[GET-INFO] yt-dlp JSON parsed:', {
+//              title: json.title,
+//              formatsCount: json.formats?.length || 0,
+//            });
+
+//            const formats = json.formats
+//              .filter(f => f.vcodec !== 'none' && f.acodec !== 'none' && !f.format_note?.includes('DASH'))
+//              .map(f => ({
+//                url: f.url,
+//                ext: f.ext,
+//                format_id: f.format_id,
+//                quality_label: f.quality || `${f.height}p`,
+//                height: f.height
+//              }));
+
+//            if (!formats.length) {
+//              console.warn('[GET-INFO] No valid muxed formats found');
+//              return res.status(500).json({ error: 'No downloadable formats found' });
+//            }
+
+//            res.json({
+//              title: json.title,
+//              thumbnail: json.thumbnail,
+//              formats
+//            });
+
+//          } catch (err) {
+//            console.error('[GET-INFO] JSON parse error:', err.message);
+//            return res.status(500).json({ error: 'Invalid video info format', detail: err.message });
+//          }
+//        });
+//      });
+
+//      /**
+//       * Route: /search
+//       * Description: Search YouTube videos by keyword
+//       */
+//      app.post('/search', async (req, res) => {
+//        const { keyword } = req.body || {};
+
+//        if (!keyword) {
+//          console.error("[SEARCH] No keyword provided");
+//          return res.status(400).json({ error: 'No keyword provided' });
+//        }
+
+//        try {
+//          const result = await ytSearch(keyword);
+//          const videos = result.videos.slice(0, 5).map(v => ({
+//            title: v.title,
+//            thumbnail: v.thumbnail,
+//            url: v.url
+//          }));
+//          console.log(`[SEARCH] Returning ${videos.length} results for: "${keyword}"`);
+//          res.json({ videos });
+//        } catch (err) {
+//          console.error("[SEARCH] Search error:", err.message);
+//          res.status(500).json({ error: 'Search failed', detail: err.message });
+//        }
+//      });
+
+//      // Start server
+//      const PORT = process.env.PORT || 3000;
+//      app.listen(PORT, () => {
+//        console.log(`🚀 Server running on port ${PORT}`);
+//      });
 
 
 
