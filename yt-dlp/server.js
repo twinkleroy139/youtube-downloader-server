@@ -32,8 +32,8 @@ const express = require('express');
          return res.status(400).json({ error: 'No video URL provided' });
        }
 
-       // Use yt-dlp from PATH with cookies and proxy
-       const cmd = `yt-dlp --no-playlist --no-warnings --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36" --geo-bypass --cookies /app/cookies.txt --proxy http://us-wa.proxymesh.com:31280 -f "bv*+ba/b" -J "${videoUrl}"`;
+       // Use yt-dlp from PATH with cookies and force-overwrites
+       const cmd = `yt-dlp --no-playlist --no-warnings --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36" --geo-bypass --cookies /app/cookies.txt --force-overwrites -f "bv*+ba/b" -J "${videoUrl}"`;
        console.log('[GET-INFO] Running command:', cmd);
 
        exec(cmd, (error, stdout, stderr) => {
