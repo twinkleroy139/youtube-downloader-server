@@ -1,4 +1,3 @@
-```dockerfile
 # Use official Node.js 22 image as the base
 FROM node:22
 
@@ -27,4 +26,3 @@ EXPOSE 3000
 
 # Start the application
 CMD ["node", "server.js"]
-```
