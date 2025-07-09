@@ -8,8 +8,8 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y python3 python3-pip ffmpeg && \
     ln -s /usr/bin/python3 /usr/bin/python
 
-# Install yt-dlp via pip
-RUN pip3 install --no-cache-dir yt-dlp
+# Install yt-dlp via pip, bypassing PEP 668
+RUN pip3 install --no-cache-dir yt-dlp --break-system-packages
 
 # Copy package.json and package-lock.json
 COPY package*.json ./
