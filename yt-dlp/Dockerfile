@@ -4,20 +4,18 @@ FROM node:22
 # Set working directory
 WORKDIR /app
 
-# Install Python 3 and dependencies, and create a python alias
-RUN apt-get update && apt-get install -y python3 python3-pip && \
+# Install Python 3, pip, and ffmpeg, and create a python alias
+RUN apt-get update && apt-get install -y python3 python3-pip ffmpeg && \
     ln -s /usr/bin/python3 /usr/bin/python
+
+# Install yt-dlp via pip
+RUN pip3 install --no-cache-dir yt-dlp
 
 # Copy package.json and package-lock.json
 COPY package*.json ./
 
 # Install Node.js dependencies
 RUN npm install
-
-# Download and install yt-dlp
-RUN mkdir -p yt-dlp-bin && \
-    curl -L https://github.com/yt-dlp/yt-dlp/releases/download/2025.03.01/yt-dlp_linux -o yt-dlp-bin/yt-dlp && \
-    chmod +x yt-dlp-bin/yt-dlp
 
 # Copy the rest of the application code
 COPY . .
