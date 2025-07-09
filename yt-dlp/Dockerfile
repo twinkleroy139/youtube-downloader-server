@@ -4,8 +4,9 @@ FROM node:22
 # Set working directory
 WORKDIR /app
 
-# Install Python 3 and dependencies
-RUN apt-get update && apt-get install -y python3 python3-pip
+# Install Python 3 and dependencies, and create a python alias
+RUN apt-get update && apt-get install -y python3 python3-pip && \
+    ln -s /usr/bin/python3 /usr/bin/python
 
 # Copy package.json and package-lock.json
 COPY package*.json ./
